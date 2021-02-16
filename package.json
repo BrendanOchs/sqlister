@@ -9,7 +9,11 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "full-start": "npm install && ionic buid && brew install cocoapods && sudo xcode-select -switch /Applications/Xcode.app/Contents/Develope && ionic cap add ios && ionic cap add android",
+    "ios-emu": "ionic cap open ios",
+    "android-emu": "ionic cap open android",
+    "update-builds": "ionic build && ionic cap copy && ionic cap sync"
   },
   "private": true,
   "dependencies": {
@@ -19,7 +23,9 @@
     "@angular/platform-browser": "~11.2.0",
     "@angular/platform-browser-dynamic": "~11.2.0",
     "@angular/router": "~11.2.0",
+    "@capacitor/android": "^2.4.6",
     "@capacitor/core": "2.4.6",
+    "@capacitor/ios": "^2.4.6",
     "@ionic/angular": "^5.5.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
