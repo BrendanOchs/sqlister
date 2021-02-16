@@ -5,7 +5,11 @@
 3. npm install @angular/cli
 
 ## Set up and run apps from Xcode and Android studio
-    - Make sure to download Xcode and Android studio or you can run the app from Chrome
+- Make sure to download Xcode and Android studio or you can run the app from Chrome
+
+Proceed by either
+- Running "npm run full-start" if Xcode and Android studio are installed already
+OR
 1. npm install
 2. ionic build
 3. brew install cocoapods
@@ -17,6 +21,9 @@
     - need to install versions of android and set up virtual device
 
 ## changes to code
+
+- run "npm run update-builds"
+OR
 1. ionic build
 2. ionic cap copy
 3. ionic cap sync
