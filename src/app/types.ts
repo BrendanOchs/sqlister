@@ -4,5 +4,5 @@ export interface Person {
     lastName: string;
     gender: string;
     createdDate: string;
-    birthday: Date;
+    birthday: string;
 }
