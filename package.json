@@ -13,7 +13,8 @@
     "full-start": "npm install && ionic buid && brew install cocoapods && sudo xcode-select -switch /Applications/Xcode.app/Contents/Develope && ionic cap add ios && ionic cap add android",
     "ios-emu": "ionic cap open ios",
     "android-emu": "ionic cap open android",
-    "update-builds": "ionic build && ionic cap copy && ionic cap sync"
+    "update-builds": "ionic build && ionic cap copy && ionic cap sync",
+    "reset": "rm -rf android && rm -rf ios && rm -rf node_modules && npm install && ionic cap add ios && ionic cap add android && npm run update-builds"
   },
   "private": true,
   "dependencies": {
@@ -26,7 +27,10 @@
     "@capacitor/android": "^2.4.6",
     "@capacitor/core": "2.4.6",
     "@capacitor/ios": "^2.4.6",
+    "@ionic-native/core": "^5.31.1",
+    "@ionic-native/sqlite": "^5.31.1",
     "@ionic/angular": "^5.5.2",
+    "cordova-sqlite-storage": "^5.1.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"
