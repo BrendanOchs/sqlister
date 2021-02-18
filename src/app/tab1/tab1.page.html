@@ -1,12 +1,3 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      All People
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-
 <ion-content [fullscreen]="true">
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button [routerLink]="'/create'">
@@ -23,7 +14,7 @@
           <h3>{{p.gender}}</h3>
           <p>Birthday: {{p.birthday | date}}</p>
           <ion-button fill="clear" [routerLink]="['/edit', p.id]">Edit</ion-button>
-          <ion-button fill="clear" color="danger" (click)="delete(p.id)">Delete</ion-button>
+          <ion-button fill="clear" color="danger" (click)="deleteConfirm(p.id)">Delete</ion-button>
         </ion-label>
       </ion-item>
     </ion-list>

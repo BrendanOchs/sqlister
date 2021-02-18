@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AlertController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { PeopleService } from '../people.service';
 import { Person } from '../types';
@@ -11,12 +12,29 @@ import { Person } from '../types';
 export class Tab1Page {
   allPeople: Observable<Person[]>;
   allGenders: Observable<string[]>;
-  constructor(private people: PeopleService) {
+  constructor(private people: PeopleService, private ac: AlertController) {
     this.allPeople = this.people.$allPeople;
     this.allGenders = this.people.$allGenders;
   }
 
-  delete(id: number) {
-    this.people.delete(id);
+  async deleteConfirm(id: number) {
+    const alert = await this.ac.create({
+      cssClass: 'my-custom-class',
+      message: 'Are you sure you want to delete?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+        }, {
+          text: 'Delete',
+          handler: () => {
+            this.people.delete(id);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 }
