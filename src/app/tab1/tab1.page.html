@@ -6,23 +6,26 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">All People</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
+<ion-content [fullscreen]="true">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button [routerLink]="['/create']">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  
   <!-- <app-explore-container name="Tab 1 page"></app-explore-container> -->
   <div *ngIf="allPeople | async as people">
     <ion-list>
       <ion-item *ngFor="let p of people">
-        <ion-note slot="start">
-          <ion-avatar>
-            <ion-img [src]="p.image"></ion-img>
-          </ion-avatar>
-        </ion-note>
-        <ion-label>{{p.firstName}}</ion-label>
+        <ion-label class="ion-text-center">
+          <h1>{{p.id}}</h1>
+          <h2>{{p.firstName}} {{p.lastName}}</h2>
+          <h3>{{p.gender}}</h3>
+          <p>Birthday: {{p.birthday | date}}</p>
+          <ion-button fill="clear">Edit</ion-button>
+          <ion-button fill="clear" color="danger" (click)="delete(p.id)">Delete</ion-button>
+        </ion-label>
       </ion-item>
     </ion-list>
   </div>
