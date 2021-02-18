@@ -19,7 +19,6 @@
     <ion-list>
       <ion-item *ngFor="let p of people">
         <ion-label class="ion-text-center">
-          <h1>{{p.id}}</h1>
           <h2>{{p.firstName}} {{p.lastName}}</h2>
           <h3>{{p.gender}}</h3>
           <p>Birthday: {{p.birthday | date}}</p>
