@@ -3,6 +3,6 @@ export interface Person {
     firstName: string;
     lastName: string;
     gender: string;
-    createdDate: Date;
+    createdDate: string;
     birthday: Date;
 }

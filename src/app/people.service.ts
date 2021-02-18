@@ -27,18 +27,18 @@ export class PeopleService {
       })
       .then((db: SQLiteObject) => {
           this.storage = db;
-          this.getFakeData();
+          this.mockDataPreFill();
       });
     });
   }
 
-  getFakeData() {
+  mockDataPreFill() {
     this.http.get(
       'assets/people.sql', 
       {responseType: 'text'}
     ).subscribe(data => {
       this.sqlPorter.importSqlToDb(this.storage, data)
-        .then(_ => {
+        .then(() => {
           this.getData();
           this.isDbReady.next(true);
         })
@@ -57,52 +57,35 @@ export class PeopleService {
       const genders = [...new Set(people.map(person => person.gender))];
       this.$allGenders.next(genders);
       this.allPeople = people;
-      console.log(this.allPeople);
       this.$allPeople.next(people);
     });
   }
 
-  // getData() {
-  //   this.http.get<Person[]>('assets/people.json').pipe(
-  //     tap(people => {
-  //       this.$allPeople.next(people);
-  //       this.allPeople = people;
-  //     }),
-  //     map(people => people.map(person => person.gender)),
-  //     map(genders => this.$allGenders.next([...new Set(genders)]))
-  //   ).subscribe();
-  // }
-
   getPerson(id: number) {
     return this.allPeople.find(person => person.id == id);
   }
-  
-  create(p: Person) {
-    p.id = Math.max(...this.allPeople.map(person => person.id)) + 1;
-    p.createdDate = new Date();
-    this.allPeople.push(p);
-    this.$allPeople.next(this.allPeople);
 
-    //add person to table
+  create(p: Person) {
+    p.createdDate = new Date().toISOString();
+    let data = [p.firstName, p.lastName, p.gender, p.createdDate, p.birthday];
+    return this.storage.executeSql('INSERT INTO PeopleTable (firstName, lastName, gender, createdDate, birthday) VALUES (?, ?, ?, ?, ?)', data)
+    .then(() => {
+      this.getData();
+    });
   }
 
   update(edits: Partial<Person>) {
-    const index = this.allPeople.findIndex(p => p.id == edits.id);
-    this.allPeople[index] = {...this.allPeople[index], ...edits};
-    this.$allPeople.next(this.allPeople);
-    
-    //update a person in the table
+    let data = [edits.firstName, edits.lastName, edits.gender, edits.birthday];
+    return this.storage.executeSql(`UPDATE PeopleTable SET firstName = ?, lastName = ?, gender = ?, birthday = ? WHERE id = ${edits.id}`, data)
+    .then(() => {
+      this.getData();
+    })
   }
 
   delete(id: number) {
-    const index = this.allPeople.findIndex(p => p.id == id);
-    this.allPeople = [...this.allPeople.slice(0, index), ...this.allPeople.slice(index + 1)];
-    this.$allPeople.next(this.allPeople);
-    
-    //delete a person from the table
-  }
-
-  onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
+    return this.storage.executeSql('DELETE FROM PeopleTable WHERE id = ?', [id])
+    .then(() => {
+      this.getData();
+    });
   }
 }
