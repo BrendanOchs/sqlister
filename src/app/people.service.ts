@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { BehaviorSubject } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { tap, map, switchMap, startWith } from 'rxjs/operators';
 import { Person } from './types';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
 import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -16,10 +17,12 @@ export class PeopleService {
 
   $allPeople: BehaviorSubject<Person[]> = new BehaviorSubject([]);
   $allGenders: BehaviorSubject<string[]> = new BehaviorSubject([]);
+  results: Observable<Person[]>;
+  filter: Observable<string>;
 
   allPeople: Person[] = [];
 
-  constructor(private http: HttpClient, private platform: Platform, private sqlite: SQLite, private sqlPorter: SQLitePorter) {
+  constructor(private http: HttpClient, private platform: Platform, private sqlite: SQLite, private sqlPorter: SQLitePorter, private route: ActivatedRoute) {
     this.platform.ready().then(() => {
       this.sqlite.create({
         name: 'people.db',
@@ -30,6 +33,17 @@ export class PeopleService {
           this.mockDataPreFill();
       });
     });
+
+    this.filter = this.route.queryParamMap.pipe(
+      map(params => params.get('filter') || 'All'),
+      startWith('All')
+      );
+
+    this.results = combineLatest([this.$allPeople, this.filter]).pipe(
+      map(([people, filter]) => {
+        return filter == 'All' ? [...people] : [...people.filter(p => p.gender == filter)]
+      })
+    )
   }
 
   mockDataPreFill() {
