@@ -1,31 +1,77 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { Person } from './types';
+import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
+import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PeopleService {
+  storage: SQLiteObject;
+  isDbReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   $allPeople: BehaviorSubject<Person[]> = new BehaviorSubject([]);
   $allGenders: BehaviorSubject<string[]> = new BehaviorSubject([]);
 
   allPeople: Person[] = [];
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private platform: Platform, private sqlite: SQLite, private sqlPorter: SQLitePorter) {
+    this.platform.ready().then(() => {
+      this.sqlite.create({
+        name: 'people.db',
+        location: 'default'
+      })
+      .then((db: SQLiteObject) => {
+          this.storage = db;
+          this.getFakeData();
+      });
+    });
+  }
+
+  getFakeData() {
+    this.http.get(
+      'assets/people.sql', 
+      {responseType: 'text'}
+    ).subscribe(data => {
+      this.sqlPorter.importSqlToDb(this.storage, data)
+        .then(_ => {
+          this.getData();
+          this.isDbReady.next(true);
+        })
+        .catch(error => console.error(error));
+    });
+  }
 
   getData() {
-    this.http.get<Person[]>('assets/people.json').pipe(
-      tap(people => {
-        this.$allPeople.next(people);
-        this.allPeople = people;
-      }),
-      map(people => people.map(person => person.gender)),
-      map(genders => this.$allGenders.next([...new Set(genders)]))
-    ).subscribe();
+    return this.storage.executeSql('SELECT * FROM PeopleTable', []).then(res => {
+      let people: Person[] = [];
+      if (res.rows.length > 0) {
+        for (var i = 0; i < res.rows.length; i++) { 
+          people.push(res.rows.item(i));
+        }
+      }
+      const genders = [...new Set(people.map(person => person.gender))];
+      this.$allGenders.next(genders);
+      this.allPeople = people;
+      console.log(this.allPeople);
+      this.$allPeople.next(people);
+    });
   }
+
+  // getData() {
+  //   this.http.get<Person[]>('assets/people.json').pipe(
+  //     tap(people => {
+  //       this.$allPeople.next(people);
+  //       this.allPeople = people;
+  //     }),
+  //     map(people => people.map(person => person.gender)),
+  //     map(genders => this.$allGenders.next([...new Set(genders)]))
+  //   ).subscribe();
+  // }
 
   getPerson(id: number) {
     return this.allPeople.find(person => person.id == id);

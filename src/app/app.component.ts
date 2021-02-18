@@ -7,7 +7,5 @@ import { PeopleService } from './people.service';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor(private people: PeopleService) {
-    this.people.getData();
-  }
+  constructor(private people: PeopleService) { }
 }
