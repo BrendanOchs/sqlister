@@ -48,9 +48,9 @@ export class PeopleService {
 
   getData() {
     return this.storage.executeSql('SELECT * FROM PeopleTable', []).then(res => {
-      let people: Person[] = [];
+      const people: Person[] = [];
       if (res.rows.length > 0) {
-        for (var i = 0; i < res.rows.length; i++) { 
+        for (let i = 0; i < res.rows.length; i++) { 
           people.push(res.rows.item(i));
         }
       }
@@ -67,7 +67,7 @@ export class PeopleService {
 
   create(p: Person) {
     p.createdDate = new Date().toISOString();
-    let data = [p.firstName, p.lastName, p.gender, p.createdDate, p.birthday];
+    const data = [p.firstName, p.lastName, p.gender, p.createdDate, p.birthday];
     return this.storage.executeSql('INSERT INTO PeopleTable (firstName, lastName, gender, createdDate, birthday) VALUES (?, ?, ?, ?, ?)', data)
     .then(() => {
       this.getData();
@@ -75,7 +75,7 @@ export class PeopleService {
   }
 
   update(edits: Partial<Person>) {
-    let data = [edits.firstName, edits.lastName, edits.gender, edits.birthday];
+    const data = [edits.firstName, edits.lastName, edits.gender, edits.birthday];
     return this.storage.executeSql(`UPDATE PeopleTable SET firstName = ?, lastName = ?, gender = ?, birthday = ? WHERE id = ${edits.id}`, data)
     .then(() => {
       this.getData();
