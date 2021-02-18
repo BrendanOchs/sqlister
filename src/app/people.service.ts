@@ -26,6 +26,10 @@ export class PeopleService {
       map(genders => this.$allGenders.next([...new Set(genders)]))
     ).subscribe();
   }
+
+  getPerson(id: number) {
+    return this.allPeople.find(person => person.id == id);
+  }
   
   create(p: Person) {
     p.id = Math.max(...this.allPeople.map(person => person.id)) + 1;
@@ -36,9 +40,9 @@ export class PeopleService {
     //add person to table
   }
 
-  update(id: number, edits: Partial<Person>) {
-    const index = this.allPeople.findIndex(p => p.id == id);
-    this.allPeople[index] = {...this.allPeople[index], ...edits} 
+  update(edits: Partial<Person>) {
+    const index = this.allPeople.findIndex(p => p.id == edits.id);
+    this.allPeople[index] = {...this.allPeople[index], ...edits};
     this.$allPeople.next(this.allPeople);
     
     //update a person in the table

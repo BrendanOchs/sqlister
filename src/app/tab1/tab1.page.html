@@ -9,7 +9,7 @@
 
 <ion-content [fullscreen]="true">
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button [routerLink]="['/create']">
+    <ion-fab-button [routerLink]="'/create'">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
@@ -22,7 +22,7 @@
           <h2>{{p.firstName}} {{p.lastName}}</h2>
           <h3>{{p.gender}}</h3>
           <p>Birthday: {{p.birthday | date}}</p>
-          <ion-button fill="clear">Edit</ion-button>
+          <ion-button fill="clear" [routerLink]="['/edit', p.id]">Edit</ion-button>
           <ion-button fill="clear" color="danger" (click)="delete(p.id)">Delete</ion-button>
         </ion-label>
       </ion-item>

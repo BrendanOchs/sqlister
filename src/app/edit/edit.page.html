@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Edit</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form *ngIf="person | async as p" [formGroup]="personForm" (ngSubmit)="update(p.id)">
+    <ion-item>
+      <ion-input formControlName="firstName" placeholder="First Name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input formControlName="lastName" placeholder="Last Name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-select formControlName="gender" placeholder="Select Gender">
+        <ion-select-option *ngFor="let g of genderOptions" [value]="g">
+          {{g}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>Birthday</ion-label>
+      <ion-datetime formControlName="birthday" value="1990-02-19"></ion-datetime>
+    </ion-item>
+    <div>
+      <ion-button block fill="clear" type="submit" [disabled]="!personForm.valid || !personForm.dirty">Update</ion-button>
+      <ion-button routerLink="/" block>Cancel</ion-button>
+    </div>
+  </form>
+</ion-content>

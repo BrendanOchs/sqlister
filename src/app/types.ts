@@ -5,5 +5,4 @@ export interface Person {
     gender: string;
     createdDate: Date;
     birthday: Date;
-    image: string;
 }
