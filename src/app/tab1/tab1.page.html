@@ -12,7 +12,14 @@
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  
-  <app-filter></app-filter>
-  <app-people-list></app-people-list>
+  <div *ngIf="(peopleData | async); else noData">
+    <app-filter></app-filter>
+    <app-people-list></app-people-list>
+  </div>
+  <ng-template #noData>
+    <div id="container">
+      <strong>Currently No Data</strong>
+      <p>Click the button to add a person</p>
+    </div>    
+  </ng-template>
 </ion-content>
