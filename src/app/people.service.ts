@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { Person } from './types';
+import { Person, PersonAge } from './types';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
 import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
 import { ActivatedRoute } from '@angular/router';
@@ -27,7 +27,7 @@ export class PeopleService {
   youngestData: string;
   averageData: string;
 
-  peopleAge: { person: string, age: number }[];
+  peopleAge: PersonAge[];
 
   allPeople: Person[] = [];
 
@@ -40,7 +40,8 @@ export class PeopleService {
         .then((db: SQLiteObject) => {
           this.storage = db;
           this.mockDataPreFill();
-        });
+        })
+        .catch(console.error);
     });
 
     this.filter = this.route.queryParamMap.pipe(
@@ -65,7 +66,7 @@ export class PeopleService {
           this.getData();
           this.isDbReady.next(true);
         })
-        .catch(error => console.error(error));
+        .catch(console.error);
     });
   }
 
@@ -93,7 +94,8 @@ export class PeopleService {
       this.$allBirthdays.next(birthdays);
       this.$allPeople.next(people);
       this.allPeople = people;
-    });
+    })
+    .catch(console.error);
   }
 
   getPerson(id: number) {
@@ -106,7 +108,8 @@ export class PeopleService {
     return this.storage.executeSql('INSERT INTO PeopleTable (firstName, lastName, gender, createdDate, birthday) VALUES (?, ?, ?, ?, ?)', data)
       .then(() => {
         this.getData();
-      });
+      })
+      .catch(console.error);
   }
 
   update(edits: Partial<Person>) {
@@ -115,12 +118,14 @@ export class PeopleService {
       .then(() => {
         this.getData();
       })
+      .catch(console.error)
   }
 
   delete(id: number) {
     return this.storage.executeSql('DELETE FROM PeopleTable WHERE id = ?', [id])
       .then(() => {
         this.getData();
-      });
+      })
+      .catch(console.error);
   }
 }

@@ -1,17 +1,19 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Stats
+      Metrics
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-card>
-    <ion-card-content>
+    <ion-card-header>
       <ion-card-title>
         User Data
       </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
       <ion-card-subtitle>
         Lowest age: {{youngestData}}
       </ion-card-subtitle>
@@ -20,7 +22,8 @@
       </ion-card-subtitle>
       <ion-card-subtitle>
         Average Age of Data: {{averageAgeData}} days
-      </ion-card-subtitle>
+      </ion-card-subtitle>  
     </ion-card-content>
   </ion-card>
+  <app-chart></app-chart>
 </ion-content>

@@ -6,3 +6,8 @@ export interface Person {
     createdDate: string;
     birthday: string;
 }
+
+export interface PersonAge {
+    person: string;
+    age: number
+}

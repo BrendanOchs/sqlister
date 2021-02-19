@@ -19,15 +19,12 @@ export class Tab2Page {
   oldestData: any;
   averageAgeData: any;
 
-  peopleAges: any[];
-
   dates: Observable<any>;
 
   constructor(private ps: PeopleService) {
     this.youngestData = this.ps.youngestData;
     this.oldestData = this.ps.oldestData;
     this.averageAgeData = this.ps.averageData;
-    this.peopleAges = this.ps.peopleAge;
   }
 
 }
