@@ -2,11 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { tap, map, switchMap, startWith } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 import { Person } from './types';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
 import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
 import { ActivatedRoute } from '@angular/router';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +18,16 @@ export class PeopleService {
 
   $allPeople: BehaviorSubject<Person[]> = new BehaviorSubject([]);
   $allGenders: BehaviorSubject<string[]> = new BehaviorSubject([]);
+  $allCreatedDates: BehaviorSubject<any[]> = new BehaviorSubject([])
+  $allBirthdays: BehaviorSubject<any[]> = new BehaviorSubject([])
   results: Observable<Person[]>;
   filter: Observable<string>;
+
+  oldestData: string;
+  youngestData: string;
+  averageData: string;
+
+  peopleAge: { person: string, age: number }[];
 
   allPeople: Person[] = [];
 
@@ -28,16 +37,16 @@ export class PeopleService {
         name: 'people.db',
         location: 'default'
       })
-      .then((db: SQLiteObject) => {
+        .then((db: SQLiteObject) => {
           this.storage = db;
           this.mockDataPreFill();
-      });
+        });
     });
 
     this.filter = this.route.queryParamMap.pipe(
       map(params => params.get('filter') || 'All'),
       startWith('All')
-      );
+    );
 
     this.results = combineLatest([this.$allPeople, this.filter]).pipe(
       map(([people, filter]) => {
@@ -48,8 +57,8 @@ export class PeopleService {
 
   mockDataPreFill() {
     this.http.get(
-      'assets/people.sql', 
-      {responseType: 'text'}
+      'assets/people.sql',
+      { responseType: 'text' }
     ).subscribe(data => {
       this.sqlPorter.importSqlToDb(this.storage, data)
         .then(() => {
@@ -64,14 +73,26 @@ export class PeopleService {
     return this.storage.executeSql('SELECT * FROM PeopleTable', []).then(res => {
       const people: Person[] = [];
       if (res.rows.length > 0) {
-        for (let i = 0; i < res.rows.length; i++) { 
+        for (let i = 0; i < res.rows.length; i++) {
           people.push(res.rows.item(i));
         }
       }
       const genders = [...new Set(people.map(person => person.gender))];
+      const createdDates = [...new Set(people.map(person => person.createdDate))];
+      const birthdays = [...new Set(people.map(person => person.birthday))];
+      this.peopleAge = [...people.map(person => {
+        return {
+          person: person.firstName, age: moment().diff(moment(person.birthday), 'years', false)
+        }
+      })];
+      this.oldestData = moment.min(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
+      this.youngestData = moment.max(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
+      this.averageData = (createdDates.map(date => moment(date).days()).reduce((a, b) => a + b) / createdDates.length).toFixed(1);
       this.$allGenders.next(genders);
-      this.allPeople = people;
+      this.$allCreatedDates.next(createdDates);
+      this.$allBirthdays.next(birthdays);
       this.$allPeople.next(people);
+      this.allPeople = people;
     });
   }
 
@@ -83,23 +104,23 @@ export class PeopleService {
     p.createdDate = new Date().toISOString();
     const data = [p.firstName, p.lastName, p.gender, p.createdDate, p.birthday];
     return this.storage.executeSql('INSERT INTO PeopleTable (firstName, lastName, gender, createdDate, birthday) VALUES (?, ?, ?, ?, ?)', data)
-    .then(() => {
-      this.getData();
-    });
+      .then(() => {
+        this.getData();
+      });
   }
 
   update(edits: Partial<Person>) {
     const data = [edits.firstName, edits.lastName, edits.gender, edits.birthday];
     return this.storage.executeSql(`UPDATE PeopleTable SET firstName = ?, lastName = ?, gender = ?, birthday = ? WHERE id = ${edits.id}`, data)
-    .then(() => {
-      this.getData();
-    })
+      .then(() => {
+        this.getData();
+      })
   }
 
   delete(id: number) {
     return this.storage.executeSql('DELETE FROM PeopleTable WHERE id = ?', [id])
-    .then(() => {
-      this.getData();
-    });
+      .then(() => {
+        this.getData();
+      });
   }
 }
