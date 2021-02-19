@@ -1,10 +1,17 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { ForbiddenComponent } from './forbidden/forbidden.component';
+import { HybridGuardService } from './hybrid-guard.service';
 
 const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule),
+    canActivate: [HybridGuardService]
+  },
+  {
+    path: 'forbidden',
+    component: ForbiddenComponent
   },
   {
     path: 'create',
