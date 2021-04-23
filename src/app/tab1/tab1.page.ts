@@ -12,6 +12,6 @@ import { Person } from '../types';
 export class Tab1Page {
   peopleData: Observable<Person[]>;
   constructor(private ps: PeopleService) { 
-    this.peopleData = this.ps.$allPeople;
+    this.peopleData = this.ps.results;
   }
 }

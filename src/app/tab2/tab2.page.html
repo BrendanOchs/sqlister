@@ -15,13 +15,13 @@
     </ion-card-header>
     <ion-card-content>
       <ion-card-subtitle>
-        Lowest age: {{youngestData}}
+        Lowest age: {{youngestData | async}}
       </ion-card-subtitle>
       <ion-card-subtitle>
-        Highest age: {{oldestData}}
+        Highest age: {{oldestData | async}}
       </ion-card-subtitle>
       <ion-card-subtitle>
-        Average Age of Data: {{averageAgeData}} days
+        Average Age of Data: {{averageAgeData | async}} days
       </ion-card-subtitle>  
     </ion-card-content>
   </ion-card>

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { map, shareReplay, startWith, tap } from 'rxjs/operators';
 import { Person, PersonAge } from './types';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
 import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
@@ -17,17 +17,17 @@ export class PeopleService {
   isDbReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   $allPeople: BehaviorSubject<Person[]> = new BehaviorSubject([]);
-  $allGenders: BehaviorSubject<string[]> = new BehaviorSubject([]);
-  $allCreatedDates: BehaviorSubject<any[]> = new BehaviorSubject([])
-  $allBirthdays: BehaviorSubject<any[]> = new BehaviorSubject([])
+  $allGenders: Observable<string[]>;
+  $allCreatedDates: Observable<any[]>;
+  $allBirthdays: Observable<string[]>;
   results: Observable<Person[]>;
   filter: Observable<string>;
 
-  oldestData: string;
-  youngestData: string;
-  averageData: string;
+  oldestData: Observable<string>;
+  youngestData: Observable<string>;
+  averageData: Observable<string>;
 
-  peopleAge: PersonAge[];
+  peopleAge: Observable<PersonAge[]>;
 
   allPeople: Person[] = [];
 
@@ -52,8 +52,59 @@ export class PeopleService {
     this.results = combineLatest([this.$allPeople, this.filter]).pipe(
       map(([people, filter]) => {
         return filter == 'All' ? [...people] : [...people.filter(p => p.gender == filter)]
-      })
+      }),
+      shareReplay()
     )
+
+    this.$allGenders = this.results.pipe(
+      map(people => {
+        return [...new Set(people.map(person => person.gender))];
+      })
+    );
+
+    this.$allCreatedDates = this.results.pipe(
+      map(people => {
+        return [...new Set(people.map(person => person.createdDate))];
+      })
+    );
+
+    this.$allBirthdays = this.results.pipe(
+      map(people => {
+        return [...new Set(people.map(person => person.birthday))];
+      })
+    );
+
+    this.peopleAge = this.results.pipe(
+      map(people => {
+        return people.map(person => {
+          return {
+            person: person.firstName, age: moment().diff(moment(person.birthday), 'years', false)
+          }
+        });
+      })
+    );
+
+    this.oldestData = this.results.pipe(
+      map(people => {
+        const createdDates = [...new Set(people.map(person => person.createdDate))];
+        return moment.min(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
+      })
+    );
+
+    this.youngestData = this.results.pipe(
+      map(people => {
+        const createdDates = [...new Set(people.map(person => person.createdDate))];
+        return moment.max(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
+      })
+    );
+
+    this.averageData = this.results.pipe(
+      map(people => {
+        const createdDates = [...new Set(people.map(person => person.createdDate))];
+        console.log('####', createdDates)
+        return (createdDates.map(date => moment(date).days()).reduce((a, b) => a + b) / createdDates.length).toFixed(1);
+      })
+    );
   }
 
   mockDataPreFill() {
@@ -78,24 +129,9 @@ export class PeopleService {
           people.push(res.rows.item(i));
         }
       }
-      const genders = [...new Set(people.map(person => person.gender))];
-      const createdDates = [...new Set(people.map(person => person.createdDate))];
-      const birthdays = [...new Set(people.map(person => person.birthday))];
-      this.peopleAge = [...people.map(person => {
-        return {
-          person: person.firstName, age: moment().diff(moment(person.birthday), 'years', false)
-        }
-      })];
-      this.oldestData = moment.min(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
-      this.youngestData = moment.max(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
-      this.averageData = (createdDates.map(date => moment(date).days()).reduce((a, b) => a + b) / createdDates.length).toFixed(1);
-      this.$allGenders.next(genders);
-      this.$allCreatedDates.next(createdDates);
-      this.$allBirthdays.next(birthdays);
-      this.$allPeople.next(people);
       this.allPeople = people;
-    })
-    .catch(console.error);
+      this.$allPeople.next(people);
+    }).catch(console.error);
   }
 
   getPerson(id: number) {

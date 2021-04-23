@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { PeopleService } from '../people.service';
-
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tab2',
@@ -10,16 +8,9 @@ import { map } from 'rxjs/operators';
   styleUrls: ['tab2.page.scss']
 })
 export class Tab2Page {
-
-  youngestPerson: any;
-  oldestPerson: any;
-  averageAgePeople: any;
-
-  youngestData: any;
-  oldestData: any;
-  averageAgeData: any;
-
-  dates: Observable<any>;
+  youngestData: Observable<string>;
+  oldestData: Observable<string>;
+  averageAgeData: Observable<string>;
 
   constructor(private ps: PeopleService) {
     this.youngestData = this.ps.youngestData;

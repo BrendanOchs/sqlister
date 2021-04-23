@@ -1,23 +1,39 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { PeopleService } from '../people.service';
 import { Chart } from 'chart.js';
+import { combineLatest, Observable, Subscription } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-chart',
   templateUrl: './chart.component.html',
   styleUrls: ['./chart.component.scss'],
 })
-export class ChartComponent implements AfterViewInit {
+export class ChartComponent implements AfterViewInit, OnDestroy {
   @ViewChild('doughnutCanvas') private doughnutCanvas: ElementRef;
 
   doughnutChart: Chart;
 
-  distinctAges: number[];
-  flooredAges: number[];
+  distinctAges: Observable<number[]>;
+  flooredAges: Observable<number[]>;
+
+  data: Observable<[number[], number[]]>;
+
+  subs: Subscription[];
 
   constructor(private ps: PeopleService) {
-    this.flooredAges = this.ps.peopleAge.map(person => Math.floor(person.age / 10) * 10);
-    this.distinctAges = [...new Set(this.flooredAges)].sort(function (a, b) { return a - b });
+    this.flooredAges = this.ps.peopleAge.pipe(
+      map(people => {
+      return people.map(person=> Math.floor(person.age / 10) * 10);
+      }),
+      shareReplay()
+    );
+    this.distinctAges = this.flooredAges.pipe(
+      map(ages => ages.sort(function (a, b) { return a - b })),
+      shareReplay()
+    );
+
+    this.data = combineLatest([this.flooredAges, this.distinctAges]);
   }
 
   ngAfterViewInit() {  
@@ -28,7 +44,7 @@ export class ChartComponent implements AfterViewInit {
     this.doughnutChart = new Chart(this.doughnutCanvas.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: [ this.distinctAges[0] == 0 ? '>0' : this.distinctAges[0], ...this.distinctAges.map(age => age.toString()).slice(1)],
+        labels: this.createLabels(),
         datasets: [{
           label: 'Ages',
           data: this.getAgeOccurances(),
@@ -38,14 +54,24 @@ export class ChartComponent implements AfterViewInit {
     });
   }
 
+  createLabels() {
+    const sub = this.distinctAges.subscribe(disAge => {
+      return [ disAge[0] == 0 ? '>0' : disAge[0], ...disAge.map(age => age.toString()).slice(1)]
+    });
+    this.subs.push(sub);
+  }
+
   getAgeOccurances() {
     const ageOccurances: number[] = [];
-    this.distinctAges.forEach((age, i) => {
-      for (let j = 0; j < this.flooredAges.length; j++) {
-        if (this.flooredAges[j] == this.distinctAges[i])
-          ageOccurances[i] > 0 ? ageOccurances[i] += 1 : ageOccurances[i] = 1;
-      }
-    })
+    const sub = combineLatest([this.distinctAges, this.flooredAges]).subscribe(([disAges, floAges]) => {
+      disAges.forEach((age, i) => {
+        for (let j = 0; j < floAges.length; j++) {
+          if (floAges[j] == disAges[i])
+            ageOccurances[i] > 0 ? ageOccurances[i] += 1 : ageOccurances[i] = 1;
+        }
+      })
+    });
+    this.subs.push(sub);
     return ageOccurances;
   }
 
@@ -57,6 +83,8 @@ export class ChartComponent implements AfterViewInit {
     return colors;
   }
 
-  ngOnInit() { }
+  ngOnDestroy() {
+    this.subs.forEach(sub => sub.unsubscribe());
+  }
 
 }
