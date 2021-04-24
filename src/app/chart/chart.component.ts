@@ -1,15 +1,15 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PeopleService } from '../people.service';
 import { Chart } from 'chart.js';
-import { combineLatest, Observable, Subscription } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { map, shareReplay, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-chart',
   templateUrl: './chart.component.html',
   styleUrls: ['./chart.component.scss'],
 })
-export class ChartComponent implements AfterViewInit, OnDestroy {
+export class ChartComponent implements OnInit {
   @ViewChild('doughnutCanvas') private doughnutCanvas: ElementRef;
 
   doughnutChart: Chart;
@@ -19,9 +19,10 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
 
   data: Observable<[number[], number[]]>;
 
-  subs: Subscription[];
-
   constructor(private ps: PeopleService) {
+  }
+  
+  ngOnInit() {
     this.flooredAges = this.ps.peopleAge.pipe(
       map(people => {
       return people.map(person=> Math.floor(person.age / 10) * 10);
@@ -32,47 +33,31 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       map(ages => ages.sort(function (a, b) { return a - b })),
       shareReplay()
     );
-
-    this.data = combineLatest([this.flooredAges, this.distinctAges]);
-  }
-
-  ngAfterViewInit() {  
-    this.createDoughnutChart();
-  }
-
-  createDoughnutChart() {
-    this.doughnutChart = new Chart(this.doughnutCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: this.createLabels(),
-        datasets: [{
-          label: 'Ages',
-          data: this.getAgeOccurances(),
-          backgroundColor: this.getBackGroundColors()
-        }]
-      }
-    });
-  }
-
-  createLabels() {
-    const sub = this.distinctAges.subscribe(disAge => {
-      return [ disAge[0] == 0 ? '>0' : disAge[0], ...disAge.map(age => age.toString()).slice(1)]
-    });
-    this.subs.push(sub);
-  }
-
-  getAgeOccurances() {
-    const ageOccurances: number[] = [];
-    const sub = combineLatest([this.distinctAges, this.flooredAges]).subscribe(([disAges, floAges]) => {
-      disAges.forEach((age, i) => {
-        for (let j = 0; j < floAges.length; j++) {
-          if (floAges[j] == disAges[i])
-            ageOccurances[i] > 0 ? ageOccurances[i] += 1 : ageOccurances[i] = 1;
-        }
+    this.data = combineLatest([this.flooredAges, this.distinctAges]).pipe(
+      tap(([floorAges, distinctAges]) => {
+        const labels = [ (distinctAges[0] == 0 ? '>0' : distinctAges[0].toString()), ...distinctAges.map(age => age.toString()).slice(1)]
+        const ageOccurances: number[] = [];
+        distinctAges.forEach((age, i) => {
+          for (let j = 0; j < floorAges.length; j++) {
+            if (floorAges[j] == distinctAges[i])
+              ageOccurances[i] > 0 ? ageOccurances[i] += 1 : ageOccurances[i] = 1;
+          }
+        })
+        console.log('labels', labels)
+        console.log('ageOccur', ageOccurances)
+        this.doughnutChart = new Chart(this.doughnutCanvas.nativeElement, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Ages',
+              data: ageOccurances,
+              backgroundColor: this.getBackGroundColors()
+            }]
+          }
+        });
       })
-    });
-    this.subs.push(sub);
-    return ageOccurances;
+    );
   }
 
   getBackGroundColors() {
@@ -81,10 +66,6 @@ export class ChartComponent implements AfterViewInit, OnDestroy {
       colors.push('#' + (Math.random() * 0xFFFFFF << 0).toString(16))
     });
     return colors;
-  }
-
-  ngOnDestroy() {
-    this.subs.forEach(sub => sub.unsubscribe());
   }
 
 }

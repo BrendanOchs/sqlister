@@ -91,6 +91,13 @@ export class PeopleService {
       })
     );
 
+    this.averageData = this.results.pipe(
+      map(people => {
+        const createdDates = [...new Set(people.map(person => person.createdDate))];
+        return (createdDates.map(date => moment().diff(moment(date), 'days')).reduce((a, b) => a + b, 0) / createdDates.length).toFixed(1);
+      })
+    );
+
     this.youngestData = this.results.pipe(
       map(people => {
         const createdDates = [...new Set(people.map(person => person.createdDate))];
@@ -98,13 +105,6 @@ export class PeopleService {
       })
     );
 
-    this.averageData = this.results.pipe(
-      map(people => {
-        const createdDates = [...new Set(people.map(person => person.createdDate))];
-        console.log('####', createdDates)
-        return (createdDates.map(date => moment(date).days()).reduce((a, b) => a + b) / createdDates.length).toFixed(1);
-      })
-    );
   }
 
   mockDataPreFill() {

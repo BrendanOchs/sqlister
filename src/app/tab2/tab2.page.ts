@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PeopleService } from '../people.service';
+import { Person } from '../types';
 
 @Component({
   selector: 'app-tab2',
@@ -10,12 +11,12 @@ import { PeopleService } from '../people.service';
 export class Tab2Page {
   youngestData: Observable<string>;
   oldestData: Observable<string>;
-  averageAgeData: Observable<string>;
+  averageData: Observable<string>;
 
   constructor(private ps: PeopleService) {
     this.youngestData = this.ps.youngestData;
     this.oldestData = this.ps.oldestData;
-    this.averageAgeData = this.ps.averageData;
+    this.averageData = this.ps.averageData;
   }
 
 }
