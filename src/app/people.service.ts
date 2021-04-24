@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, shareReplay, startWith, tap } from 'rxjs/operators';
+import { filter, map, shareReplay, skip, startWith, tap } from 'rxjs/operators';
 import { Person, PersonAge } from './types';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
 import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
@@ -28,6 +28,9 @@ export class PeopleService {
   averageData: Observable<string>;
 
   peopleAge: Observable<PersonAge[]>;
+
+  flooredAges: Observable<number[]>;
+  distinctAges: Observable<{labels: string[], ageOccurances: number[]}>;
 
   allPeople: Person[] = [];
 
@@ -81,7 +84,30 @@ export class PeopleService {
             person: person.firstName, age: moment().diff(moment(person.birthday), 'years', false)
           }
         });
-      })
+      }),
+      shareReplay()
+    );
+
+    this.flooredAges = this.peopleAge.pipe(
+      map(people => {
+        return people.map(person => Math.floor(person.age / 10) * 10);
+      }),
+      filter(array => array.length > 0),
+    );
+
+    this.distinctAges = this.flooredAges.pipe(
+      map(ages => {
+        const distinct = [...new Set(ages.sort(function (a, b) { return a - b }))]
+        const labels = [ (distinct[0] == 0 ? '>0' : distinct[0].toString()), ...distinct.map(age => age.toString()).slice(1)]
+        const ageOccurances: number[] = [];
+        distinct.forEach((age, i) => {
+          for (let j = 0; j < ages.length; j++) {
+            if (ages[j] == distinct[i])
+              ageOccurances[i] > 0 ? ageOccurances[i] += 1 : ageOccurances[i] = 1;
+          }
+        })
+        return {labels, ageOccurances}
+      }),
     );
 
     this.oldestData = this.results.pipe(
