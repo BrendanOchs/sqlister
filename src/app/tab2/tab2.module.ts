@@ -6,6 +6,7 @@ import { Tab2Page } from './tab2.page';
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
 import { ChartComponent } from '../chart/chart.component';
+import { DoughnutGraphComponent } from '../doughnut-graph/doughnut-graph.component';
 
 @NgModule({
   imports: [
@@ -14,6 +15,6 @@ import { ChartComponent } from '../chart/chart.component';
     FormsModule,
     Tab2PageRoutingModule
   ],
-  declarations: [Tab2Page, ChartComponent]
+  declarations: [Tab2Page, ChartComponent, DoughnutGraphComponent]
 })
 export class Tab2PageModule {}

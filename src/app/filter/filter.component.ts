@@ -11,18 +11,23 @@ import { PeopleService } from '../people.service';
   styleUrls: ['./filter.component.scss'],
 })
 export class FilterComponent implements OnDestroy {
-  allGenders: Observable<string[]>;
+  allGenders: string[];
 
   controlSub: Subscription;
   filter = new FormControl();
 
   constructor(private ps: PeopleService, private router: Router) { 
     this.filter.setValue('All');
-    this.allGenders = this.ps.$allGenders.pipe(
-      map(genders =>{
-        return ['All', ...genders];
-      })
-    );
+    this.allGenders = [
+      'All',
+      'Genderfluid',
+      'Genderqueer',
+      'Polygender',
+      'Non-binary',
+      'Bigender',
+      'Female',
+      'Male'
+    ]
     this.controlSub = this.filter.valueChanges
       .subscribe(searchTerm => {
         // If filter is an empty string, replace with undefined

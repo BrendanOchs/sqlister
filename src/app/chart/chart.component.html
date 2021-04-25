@@ -5,6 +5,7 @@
     </ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    <canvas #doughnutCanvas style="position: relative; height:20vh; width:40vw"></canvas>
+    <ng-container *ngIf="data | async as d"></ng-container>
+    <app-doughnut-graph data="d"></app-doughnut-graph>
   </ion-card-content>
 </ion-card>

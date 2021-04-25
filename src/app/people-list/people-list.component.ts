@@ -15,7 +15,6 @@ export class PeopleListComponent {
   allGenders: Observable<string[]>;
   constructor(private people: PeopleService, private ac: AlertController) {
     this.allPeople = this.people.results;
-    this.allGenders = this.people.$allGenders;
   }
 
   async deleteConfirm(id: number) {

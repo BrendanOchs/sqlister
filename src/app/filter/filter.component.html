@@ -1,4 +1,4 @@
-<ion-item *ngIf="allGenders | async as genders">
+<ion-item *ngIf="allGenders as genders">
   <ion-label>Gender Filter</ion-label>
   <ion-select [formControl]="filter" placeholder="Select One">
     <ion-select-option *ngFor="let g of genders" [value]="g">{{g}}</ion-select-option>

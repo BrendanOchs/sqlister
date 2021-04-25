@@ -17,20 +17,19 @@ export class PeopleService {
   isDbReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   $allPeople: BehaviorSubject<Person[]> = new BehaviorSubject([]);
-  $allGenders: Observable<string[]>;
-  $allCreatedDates: Observable<any[]>;
-  $allBirthdays: Observable<string[]>;
+  $allCreatedDates: BehaviorSubject<string[]> = new BehaviorSubject([]);
+  $allBirthdays: BehaviorSubject<string[]> = new BehaviorSubject([]);
   results: Observable<Person[]>;
   filter: Observable<string>;
 
-  oldestData: Observable<string>;
-  youngestData: Observable<string>;
-  averageData: Observable<string>;
+  oldestData: BehaviorSubject<string> = new BehaviorSubject('');
+  youngestData: BehaviorSubject<string> = new BehaviorSubject('');
+  averageData: BehaviorSubject<string> = new BehaviorSubject('');
 
-  peopleAge: Observable<PersonAge[]>;
+  peopleAge: BehaviorSubject<PersonAge[]> = new BehaviorSubject([]);
 
-  flooredAges: Observable<number[]>;
-  distinctAges: Observable<{labels: string[], ageOccurances: number[]}>;
+  flooredAges: BehaviorSubject<number[]> = new BehaviorSubject([]);
+  distinctAges: BehaviorSubject<{labels: string[], ageOccurances: number[]}> = new BehaviorSubject({labels: [], ageOccurances: []});
 
   allPeople: Person[] = [];
 
@@ -56,81 +55,36 @@ export class PeopleService {
       map(([people, filter]) => {
         return filter == 'All' ? [...people] : [...people.filter(p => p.gender == filter)]
       }),
-      shareReplay()
-    )
-
-    this.$allGenders = this.results.pipe(
-      map(people => {
-        return [...new Set(people.map(person => person.gender))];
-      })
-    );
-
-    this.$allCreatedDates = this.results.pipe(
-      map(people => {
-        return [...new Set(people.map(person => person.createdDate))];
-      })
-    );
-
-    this.$allBirthdays = this.results.pipe(
-      map(people => {
-        return [...new Set(people.map(person => person.birthday))];
-      })
-    );
-
-    this.peopleAge = this.results.pipe(
-      map(people => {
-        return people.map(person => {
+      skip(1),
+      filter(people => people.length > 0),
+      tap(people => {
+        this.$allCreatedDates.next([...new Set(people.map(person => person.createdDate))])
+        this.$allBirthdays.next([...new Set(people.map(person => person.birthday))])
+        const ages = people.map(person => {
           return {
             person: person.firstName, age: moment().diff(moment(person.birthday), 'years', false)
           }
-        });
-      }),
-      shareReplay()
-    );
-
-    this.flooredAges = this.peopleAge.pipe(
-      map(people => {
-        return people.map(person => Math.floor(person.age / 10) * 10);
-      }),
-      filter(array => array.length > 0),
-    );
-
-    this.distinctAges = this.flooredAges.pipe(
-      map(ages => {
-        const distinct = [...new Set(ages.sort(function (a, b) { return a - b }))]
+        })
+        this.peopleAge.next(ages)
+        const createdDates = [...new Set(people.map(person => person.createdDate))];
+        this.oldestData.next(moment.min(createdDates.map(date => moment(date))).format('MM/DD/YYYY'));
+        this.youngestData.next(moment.max(createdDates.map(date => moment(date))).format('MM/DD/YYYY'))
+        this.averageData.next((createdDates.map(date => moment().diff(moment(date), 'days')).reduce((a, b) => a + b, 0) / createdDates.length).toFixed(1))
+        const floorAges = ages.map(person => Math.floor(person.age / 10) * 10)
+        this.flooredAges.next(floorAges)
+        const distinct = [...new Set(floorAges.sort(function (a, b) { return a - b }))]
         const labels = [ (distinct[0] == 0 ? '>0' : distinct[0].toString()), ...distinct.map(age => age.toString()).slice(1)]
         const ageOccurances: number[] = [];
         distinct.forEach((age, i) => {
-          for (let j = 0; j < ages.length; j++) {
-            if (ages[j] == distinct[i])
+          for (let j = 0; j < floorAges.length; j++) {
+            if (floorAges[j] == distinct[i])
               ageOccurances[i] > 0 ? ageOccurances[i] += 1 : ageOccurances[i] = 1;
           }
         })
-        return {labels, ageOccurances}
+        this.distinctAges.next({labels, ageOccurances})
       }),
-    );
-
-    this.oldestData = this.results.pipe(
-      map(people => {
-        const createdDates = [...new Set(people.map(person => person.createdDate))];
-        return moment.min(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
-      })
-    );
-
-    this.averageData = this.results.pipe(
-      map(people => {
-        const createdDates = [...new Set(people.map(person => person.createdDate))];
-        return (createdDates.map(date => moment().diff(moment(date), 'days')).reduce((a, b) => a + b, 0) / createdDates.length).toFixed(1);
-      })
-    );
-
-    this.youngestData = this.results.pipe(
-      map(people => {
-        const createdDates = [...new Set(people.map(person => person.createdDate))];
-        return moment.max(createdDates.map(date => moment(date))).format('MM/DD/YYYY');
-      })
-    );
-
+      shareReplay()
+    )
   }
 
   mockDataPreFill() {
