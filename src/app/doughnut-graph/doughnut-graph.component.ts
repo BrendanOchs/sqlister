@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js';
+import { DistinctAges } from '../types';
 
 @Component({
   selector: 'app-doughnut-graph',
@@ -8,7 +9,7 @@ import { Chart } from 'chart.js';
 })
 export class DoughnutGraphComponent implements AfterViewInit {
   @ViewChild('doughnutCanvas') private doughnutCanvas: ElementRef;
-  @Input() data(data: {labels: string[], ageOccurances: number[]}) {
+  @Input() data(data: DistinctAges) {
     this.doughnutChart = new Chart(this.doughnutCanvas.nativeElement, {
       type: 'doughnut',
       data: {

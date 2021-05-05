@@ -1,6 +1,6 @@
-<div *ngIf="allPeople | async as people">
+<div>
   <ion-list>
-    <ion-item *ngFor="let p of people">
+    <ion-item *ngFor="let p of allPeople">
       <ion-label class="ion-text-center">
         <h2>{{p.firstName}} {{p.lastName}}</h2>
         <h3>{{p.gender}}</h3>

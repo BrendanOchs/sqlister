@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { filter, map, shareReplay, skip, startWith, tap } from 'rxjs/operators';
-import { Person, PersonAge } from './types';
+import { DistinctAges, Person, PersonAge } from './types';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
 import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
 import { ActivatedRoute } from '@angular/router';
@@ -15,6 +15,8 @@ import * as moment from 'moment';
 export class PeopleService {
   storage: SQLiteObject;
   isDbReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
+  searchTerm: BehaviorSubject<string> = new BehaviorSubject('All')
 
   $allPeople: BehaviorSubject<Person[]> = new BehaviorSubject([]);
   $allCreatedDates: BehaviorSubject<string[]> = new BehaviorSubject([]);
@@ -29,7 +31,7 @@ export class PeopleService {
   peopleAge: BehaviorSubject<PersonAge[]> = new BehaviorSubject([]);
 
   flooredAges: BehaviorSubject<number[]> = new BehaviorSubject([]);
-  distinctAges: BehaviorSubject<{labels: string[], ageOccurances: number[]}> = new BehaviorSubject({labels: [], ageOccurances: []});
+  distinctAges: BehaviorSubject<DistinctAges> = new BehaviorSubject({labels: [], ageOccurances: []});
 
   allPeople: Person[] = [];
 
@@ -46,9 +48,8 @@ export class PeopleService {
         .catch(console.error);
     });
 
-    this.filter = this.route.queryParamMap.pipe(
-      map(params => params.get('filter') || 'All'),
-      startWith('All')
+    this.filter = this.searchTerm.pipe(
+      map(term => term || 'All'),
     );
 
     this.results = combineLatest([this.$allPeople, this.filter]).pipe(

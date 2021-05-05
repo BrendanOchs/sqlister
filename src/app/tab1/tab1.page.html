@@ -12,9 +12,9 @@
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <div *ngIf="(peopleData | async); else noData">
+  <div *ngIf="(peopleData | async) as data; else noData">
     <app-filter></app-filter>
-    <app-people-list></app-people-list>
+    <app-people-list [allPeople]="data"></app-people-list>
   </div>
   <ng-template #noData>
     <div id="container">

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PeopleService } from '../people.service';
 import { Observable } from 'rxjs';
+import { DistinctAges } from '../types';
 
 @Component({
   selector: 'app-chart',
@@ -9,7 +10,7 @@ import { Observable } from 'rxjs';
 })
 export class ChartComponent implements OnInit {
 
-  data: Observable<{labels: string[], ageOccurances: number[]}>;
+  data: Observable<DistinctAges>;
 
   constructor(private ps: PeopleService) { }
   

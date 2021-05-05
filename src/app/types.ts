@@ -11,3 +11,8 @@ export interface PersonAge {
     person: string;
     age: number
 }
+
+export interface DistinctAges {
+    labels: string[],
+    ageOccurances: number[]
+}

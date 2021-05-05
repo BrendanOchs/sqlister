@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { PeopleService } from '../people.service';
@@ -11,11 +11,8 @@ import { Person } from '../types';
 })
 export class PeopleListComponent {
 
-  allPeople: Observable<Person[]>;
-  allGenders: Observable<string[]>;
-  constructor(private people: PeopleService, private ac: AlertController) {
-    this.allPeople = this.people.results;
-  }
+  @Input() allPeople: Observable<Person[]>;
+  constructor(private people: PeopleService, private ac: AlertController) { }
 
   async deleteConfirm(id: number) {
     const alert = await this.ac.create({

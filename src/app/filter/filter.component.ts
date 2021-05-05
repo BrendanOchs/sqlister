@@ -33,13 +33,7 @@ export class FilterComponent implements OnDestroy {
         // If filter is an empty string, replace with undefined
         // to avoid having an empty key-value pair in the URL
         const filter = searchTerm || undefined;
-        const queryParams = { filter };
-        // Navigate returns a promise, best practices dictate that you should always handle them
-        // Intentionally choosing not to, and casting it to a void to pass lint
-        void this.router.navigate([], {
-          queryParams,
-          queryParamsHandling: 'merge'
-        });
+        this.ps.searchTerm.next(filter);
       });
   }
 
