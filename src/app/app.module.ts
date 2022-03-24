@@ -12,18 +12,19 @@ import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
 import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [AppComponent],
-  entryComponents: [],
-  imports: [
-    BrowserModule, 
-    IonicModule.forRoot(), 
-    AppRoutingModule, 
-    HttpClientModule,
-    ReactiveFormsModule],
-  providers: [
-    SQLite,
-    SQLitePorter,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
-  bootstrap: [AppComponent],
+    declarations: [AppComponent],
+    imports: [
+        BrowserModule,
+        IonicModule.forRoot(),
+        AppRoutingModule,
+        HttpClientModule,
+        ReactiveFormsModule
+    ],
+    providers: [
+        SQLite,
+        SQLitePorter,
+        { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}

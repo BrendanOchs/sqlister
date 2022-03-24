@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { Observable } from 'rxjs';
 import { PeopleService } from '../people.service';
 import { Person } from '../types';
 
@@ -11,7 +10,7 @@ import { Person } from '../types';
 })
 export class PeopleListComponent {
 
-  @Input() allPeople: Observable<Person[]>;
+  @Input() allPeople: Person[];
   constructor(private people: PeopleService, private ac: AlertController) { }
 
   async deleteConfirm(id: number) {
