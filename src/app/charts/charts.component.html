@@ -1,0 +1,13 @@
+<div>Below is the age break down of the {{totalPeople}} {{totalPeople > 1 ? 'people' : 'person'}} in your filtered list.</div>
+<div *ngIf="data as d">
+    <div style="display: flex;" *ngFor="let age of d.labels; index as i">
+        <div>
+            {{age}}:
+        </div>
+        <div class="bar-container" style="height: 22px; border: 1px solid gray; border-radius: 5px; width: 100%;">
+            <div [style.width.%]="(d.ageOccurances[i] / totalPeople) * 100" [style.backgroundColor]="getRandomColor()" style="height: 20px; text-align: center; color: white">
+                {{(d.ageOccurances[i] / totalPeople) * 100 | number: '1.0-0'}}%
+            </div>
+        </div> 
+    </div>
+</div>

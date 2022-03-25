@@ -31,7 +31,6 @@
     "@ionic-native/sqlite": "^5.36.0",
     "@ionic-native/sqlite-porter": "^5.36.0",
     "@ionic/angular": "^6.0.13",
-    "chart.js": "^2.9.4",
     "cordova-sqlite-storage": "^5.1.0",
     "moment": "^2.29.1",
     "rxjs": "^6.6.7",

@@ -5,9 +5,6 @@
     </ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    <ng-container *ngIf="data | async as d">
-      <pre>{{d | json}}</pre>
-    </ng-container>
-    <app-doughnut-graph data="d"></app-doughnut-graph>
+    <app-charts [data]="data | async" [totalPeople]="totalPeople | async"></app-charts>
   </ion-card-content>
 </ion-card>

@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { DoughnutGraphComponent } from './doughnut-graph.component';
+import { MetricsComponent } from './metrics.component';
 
-describe('DoughnutGraphComponent', () => {
-  let component: DoughnutGraphComponent;
-  let fixture: ComponentFixture<DoughnutGraphComponent>;
+describe('MetricsComponent', () => {
+  let component: MetricsComponent;
+  let fixture: ComponentFixture<MetricsComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ DoughnutGraphComponent ],
+      declarations: [ MetricsComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DoughnutGraphComponent);
+    fixture = TestBed.createComponent(MetricsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
