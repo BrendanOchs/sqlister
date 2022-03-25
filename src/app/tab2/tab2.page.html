@@ -25,5 +25,14 @@
       </ion-card-subtitle>  
     </ion-card-content>
   </ion-card>
-  <app-chart></app-chart>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        User Age Groups
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <app-charts [data]="data | async" [totalPeople]="totalPeople | async"></app-charts>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

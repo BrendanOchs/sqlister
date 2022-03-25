@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { Tab2Page } from './tab2.page';
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
-import { MetricsComponent } from '../metrics/metrics.component';
 import { ChartsComponent } from '../charts/charts.component';
 
 @NgModule({
@@ -15,6 +14,6 @@ import { ChartsComponent } from '../charts/charts.component';
     FormsModule,
     Tab2PageRoutingModule
   ],
-  declarations: [Tab2Page, MetricsComponent, ChartsComponent]
+  declarations: [Tab2Page, ChartsComponent]
 })
 export class Tab2PageModule {}
